@@ -1,0 +1,8 @@
+preprocess_train/*
+preprocess_test/*
+result/*
+result_archive/*
+tmp_file/*
+MT2.pdf
+*.pyc
+test/*
