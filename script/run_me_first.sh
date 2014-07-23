@@ -19,8 +19,18 @@ python main.py rowize_dataset
 python main.py fst
 
 cd ./script/
+# export NGRAMS=2;
+# bash script.sh
 
-# You can change the below line to run the cutoff_script.sh
-bash script.sh
-# bash cutoff_script.sh
-# bash refined_cutoff_script.sh
+for i in 1 2 3 4 5;
+do
+    export NGRAMS=$i;
+
+    # You can change the below line to run the cutoff_script.sh
+    #  bash script.sh;
+    # bash cutoff_script.sh;
+    bash refined_cutoff_script.sh
+    starting_number=10;
+    mkdir -p $((i + starting_number));
+    mv ../result/* ./$((i + starting_number));
+done

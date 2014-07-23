@@ -12,7 +12,7 @@ W2C_FSM="${PREFIX}refined_cutoff_w2c.fsm";
 G_FST="${PREFIX}refined_cutoff_g.fst";
 W2C_FST="${PREFIX}refined_cutoff_w2c.fst";
 
-TRAIN_FILE="./preprocess_train/refined_cutoff_sentences.txt";
+TRAIN_FILE="./preprocess_train/refined_cutoff_mixed.txt";
 TRAIN_FAR="${PREFIX}train.far";
 TRAIN_FAR_FINAL="${PREFIX}train_final.far";
 TRAIN_COUNT="${PREFIX}train.count";
@@ -21,28 +21,35 @@ TRAIN_ELM="${PREFIX}train.elm";
 
 TEST_FILE="./preprocess_test/sentences.txt";
 
+echo $NGRAMS;
+echo "refined";
+
 # Step 1
-farcompilestrings -u '<unk>' -i $LEXICON $TRAIN_FILE > $TRAIN_FAR
+farcompilestrings -u '<unk>' -i $LEXICON $TRAIN_FILE > $TRAIN_FAR;
 
 # Step 2
-fsmcompile -i $LEXICON -o $LEXICON -t $G_FSM > $G_FST
-farfilter "fsmcompose - $G_FST | fsmbestpath | fsmrmepsilon"< $TRAIN_FAR > "${PREFIX}train_2.far";
+fsmcompile -i $LEXICON -o $LEXICON -t $G_FSM > $G_FST;
+# farfilter "fsmcompose - $G_FST"< $TRAIN_FAR > "${PREFIX}train_2.far";
+# farfilter "fsmcompose - $G_FST | fsmbestpath | fsmrmepsilon"< $TRAIN_FAR > "${PREFIX}train_2.far";
 
 # Step 3
 fsmcompile -i $LEXICON -o $LEXICON -t $W2C_FSM > $W2C_FST;
-farfilter "fsmcompose - $W2C_FST | fsmbestpath | fsmrmepsilon"< "${PREFIX}train_2.far" > $TRAIN_FAR_FINAL;
+# farfilter "fsmcompose - $W2C_FST"< "${PREFIX}train_2.far" > $TRAIN_FAR_FINAL;
+# farfilter "fsmcompose - $W2C_FST | fsmbestpath | fsmrmepsilon"< "${PREFIX}train_2.far" > $TRAIN_FAR_FINAL;
 
 # Step 4
-grmcount -i $LEXICON -n 2 -s '<s>' -f '</s>' $TRAIN_FAR_FINAL > $TRAIN_COUNT
-grmmake -n 2 $TRAIN_COUNT > $TRAIN_LM
+grmcount -i $LEXICON -n $NGRAMS -s '<s>' -f '</s>' $TRAIN_FAR > $TRAIN_COUNT
+grmmake -n $NGRAMS $TRAIN_COUNT > $TRAIN_LM
 grmconvert -i $LEXICON -f '<epsilon>' $TRAIN_LM > $TRAIN_ELM
 
-# Step 5 - run the refined with SCLM the test set
-farcompilestrings -u 'null' -i $LEXICON $TEST_FILE > ./result/test1.far
-farfilter "fsmcompose - $G_FST" < ./result/test1.far > ./result/test2.far
-farfilter "fsmcompose - $W2C_FST" < ./result/test2.far > ./result/test3.far
+# Step 5 - run the refined SCLM with the test set
+farcompilestrings -u '<unk>' -i $LEXICON $TEST_FILE > ./result/test1.far
+# farfilter "fsmcompose - $G_FST" < ./result/test1.far > ./result/test2.far
+# farfilter "fsmcompose - $W2C_FST" < ./result/test2.far > ./result/test3.far
 
-farfilter "fsmcompose - $TRAIN_ELM | fsmbestpath | fsmrmepsilon" < ./result/test3.far > ./result/test4.far
+farfilter "fsmcompose - $G_FST $W2C_FST $TRAIN_ELM | fsmbestpath | fsmrmepsilon" < ./result/test1.far > ./result/test4.far
+# farfilter "fsmcompose - $G_FST $W2C_FST | fsmbestpath | fsmrmepsilon" < ./result/test1.far > ./result/test2.far
+# farfilter "fsmcompose - $TRAIN_ELM | fsmbestpath | fsmrmepsilon" < ./result/test2.far > ./result/test4.far
 farprintstrings -o $LEXICON ./result/test4.far > ./result/test4.txt
 
 # Step 6 - map all 'non-concept' terminals to 'null'
@@ -59,6 +66,6 @@ python concept_analysis.py
 # farprintstrings -o $LEXICON "${PREFIX}train_2.far" > "${PREFIX}train_2.txt";
 # farprintstrings -o $LEXICON $TRAIN_FAR_FINAL > "${PREFIX}train_final.txt";
 
-farprintstrings -o $LEXICON ./result/test1.far > ./result/test1.txt
-farprintstrings -o $LEXICON ./result/test2.far > ./result/test2.txt
-farprintstrings -o $LEXICON ./result/test3.far > ./result/test3.txt
+# farprintstrings -o $LEXICON ./result/test1.far > ./result/test1.txt
+# farprintstrings -o $LEXICON ./result/test2.far > ./result/test2.txt
+# farprintstrings -o $LEXICON ./result/test3.far > ./result/test3.txt

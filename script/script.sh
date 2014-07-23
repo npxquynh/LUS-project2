@@ -26,6 +26,9 @@ TRAIN_ELM="${PREFIX}train.elm";
 
 TEST_FILE="./preprocess_test/sentences.txt";
 
+echo $NGRAMS;
+echo "abc"
+
 # Step 1
 farcompilestrings -u '<unk>' -i $LEXICON $TRAIN_FILE > $TRAIN_FAR
 
@@ -40,8 +43,8 @@ fsmcompile -i $LEXICON -o $LEXICON -t $W2C_FSM > $W2C_FST;
 # farfilter "fsmcompose - $W2C_FST | fsmbestpath | fsmrmepsilon"< "${PREFIX}train_2.far" > $TRAIN_FAR_FINAL;
 
 # Step 4
-grmcount -i $LEXICON -n 2 -s '<s>' -f '</s>' $TRAIN_FAR > $TRAIN_COUNT
-grmmake -n 2 $TRAIN_COUNT > $TRAIN_LM
+grmcount -i $LEXICON -n $NGRAMS -s '<s>' -f '</s>' $TRAIN_FAR > $TRAIN_COUNT
+grmmake -n $NGRAMS $TRAIN_COUNT > $TRAIN_LM
 grmconvert -i $LEXICON -f '<epsilon>' $TRAIN_LM > $TRAIN_ELM
 
 # Step 5 - run the refined SCLM with the test set
