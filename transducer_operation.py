@@ -1,4 +1,5 @@
 import re
+import default_concept as def_con
 
 def step_2(training_file):
     transducer = dict()
@@ -9,6 +10,16 @@ def step_2(training_file):
                 if words[0] not in transducer:
                     transducer[words[0]] = set()
                 transducer[words[0]].add(words[1])
+
+    # treating special case
+    tmp_set = set()
+    tmp_set.add('null');
+    transducer['null'] = tmp_set
+
+    # treating unknown words
+    tmp_set = set()
+    tmp_set.add('<unk>')
+    transducer['<unk>'] = tmp_set
 
     return transducer
 
@@ -45,6 +56,16 @@ def step_3(training_file):
                 if word not in transducer:
                     transducer[word] = set()
                 transducer[word].add(concept)
+
+    # treating special case
+    null_set = set()
+    null_set.add('null');
+    transducer['null'] = null_set
+
+    # all unknown words should be mapped to all possible concepts
+    all_concepts = def_con.all_possible_concepts()
+    all_concepts.add('null')
+    transducer['<unk>'] = all_concepts
 
     return transducer
 

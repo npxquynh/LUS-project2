@@ -78,6 +78,10 @@ def analyse_edit_distance(recognized_concept_file, annotated_concept_file):
         else:
             edit_distance.append(-1)
 
+    # Print the average edit distance
+    tmp = [x for x in edit_distance if x != -1]
+    print('Average edit distance: %f\n' % (sum(tmp) * 1.0 / len(tmp)))
+
     return edit_distance
 
 def write_edit_distance(output_file, edit_distance):

@@ -4,15 +4,15 @@
 cd ../
 
 PREFIX="./tmp_file/";
-LEXICON="${PREFIX}cutoff_lexicon.txt";
+LEXICON="${PREFIX}refined_cutoff_lexicon.txt";
 CONCEPT_LEXICON=./files_from_outside/concept_lexicon.txt;
 
-G_FSM="${PREFIX}cutoff_g.fsm";
-W2C_FSM="${PREFIX}cutoff_w2c.fsm";
-G_FST="${PREFIX}cutoff_g.fst";
-W2C_FST="${PREFIX}cutoff_w2c.fst";
+G_FSM="${PREFIX}refined_cutoff_g.fsm";
+W2C_FSM="${PREFIX}refined_cutoff_w2c.fsm";
+G_FST="${PREFIX}refined_cutoff_g.fst";
+W2C_FST="${PREFIX}refined_cutoff_w2c.fst";
 
-TRAIN_FILE="./preprocess_train/cutoff_sentences.txt";
+TRAIN_FILE="./preprocess_train/refined_cutoff_sentences.txt";
 TRAIN_FAR="${PREFIX}train.far";
 TRAIN_FAR_FINAL="${PREFIX}train_final.far";
 TRAIN_COUNT="${PREFIX}train.count";
@@ -33,8 +33,8 @@ fsmcompile -i $LEXICON -o $LEXICON -t $W2C_FSM > $W2C_FST;
 farfilter "fsmcompose - $W2C_FST | fsmbestpath | fsmrmepsilon"< "${PREFIX}train_2.far" > $TRAIN_FAR_FINAL;
 
 # Step 4
-grmcount -i $LEXICON -n 1 -s '<s>' -f '</s>' $TRAIN_FAR_FINAL > $TRAIN_COUNT
-grmmake -n 1 $TRAIN_COUNT > $TRAIN_LM
+grmcount -i $LEXICON -n 2 -s '<s>' -f '</s>' $TRAIN_FAR_FINAL > $TRAIN_COUNT
+grmmake -n 2 $TRAIN_COUNT > $TRAIN_LM
 grmconvert -i $LEXICON -f '<epsilon>' $TRAIN_LM > $TRAIN_ELM
 
 # Step 5 - run the refined with SCLM the test set
@@ -59,6 +59,6 @@ python concept_analysis.py
 # farprintstrings -o $LEXICON "${PREFIX}train_2.far" > "${PREFIX}train_2.txt";
 # farprintstrings -o $LEXICON $TRAIN_FAR_FINAL > "${PREFIX}train_final.txt";
 
-# farprintstrings -o $LEXICON ./result/test1.far > ./result/test1.txt
-# farprintstrings -o $LEXICON ./result/test2.far > ./result/test2.txt
-# farprintstrings -o $LEXICON ./result/test3.far > ./result/test3.txt
+farprintstrings -o $LEXICON ./result/test1.far > ./result/test1.txt
+farprintstrings -o $LEXICON ./result/test2.far > ./result/test2.txt
+farprintstrings -o $LEXICON ./result/test3.far > ./result/test3.txt

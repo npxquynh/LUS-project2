@@ -1,4 +1,5 @@
 import re
+import default_concept as def_con
 
 def generate_lexicon_from_textfile(filename):
     with open(filename) as f:
@@ -19,6 +20,14 @@ def generate_cutoff_lexicon(lexicon, stopwords_filename):
     lexicon = lexicon.difference(stopwords)
     return lexicon
 
+def generate_refined_cutoff_lexicon(lexicon, stopwords_filename):
+    lexicon = generate_cutoff_lexicon(lexicon, stopwords_filename)
+
+    for x in "after and around at before between by for from in of on to".split(" "):
+        lexicon.add(x)
+
+    return lexicon
+
 def write_lexicon_to_file(filename, lexicon):
     """
     set(): lexicon
@@ -31,9 +40,12 @@ def write_lexicon_to_file(filename, lexicon):
 
     count = 0
 
+    all_possible_concepts = def_con.all_possible_concepts()
+
     special_lex = ['<epsilon>']
-    irregular_lex = ['<unk>', '<s>', '</s>']
+    irregular_lex = ['<unk>', '<s>', '</s>', 'null']
     lexicon = lexicon.union(set(irregular_lex))
+    lexicon = lexicon.union(all_possible_concepts)
     lexicon = list(lexicon) # just in case lexicon is a set
 
     with open(filename, 'w') as output:
